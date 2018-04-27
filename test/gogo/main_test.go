@@ -51,8 +51,19 @@ func (s *TestService) Simple(ctx context.Context, req *TestRequest) (*TestRespon
 
 	out.Sopt1 = mi.Service().GetBoolExtension(E_Sopt1, false)
 	out.Mopt1 = mi.Method().GetBoolExtension(E_Mopt1, false)
-	mopt2, _ := mi.Method().GetExtension(E_Mopt2)
+	mopt2, err := mi.Method().GetExtension(E_Mopt2)
 	out.Mopt2, _ = mopt2.(*CustomOption)
+
+	if err != nil {
+		return nil, err
+	}
+	sopt, err := mi.Service().GetExtension(E_Sopt1)
+	if err != nil {
+		return nil, err
+	}
+	if out.Sopt1 != *(sopt.(*bool)) {
+		return nil, fmt.Errorf("genextension mismatch")
+	}
 	return out, nil
 }
 
