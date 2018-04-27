@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+option go_package = "github.com/prasek/go-grpc-info/test/golang";
+
+package test;
+
+import "google/protobuf/descriptor.proto";
+
+message TestRequest {
+	string foo = 1;
+	string bar = 2;
+}
+
+message TestResponse {
+	string foo = 1;
+	string bar = 2;
+  bool sopt1 = 3;
+  bool mopt1 = 4;
+  CustomOption mopt2 = 5;
+}
+
+extend google.protobuf.MethodOptions {
+  bool mopt1 = 50059;
+};
+
+message CustomOption {
+  string name = 1;
+  int32 value = 2;
+}
+
+extend google.protobuf.MethodOptions {
+  CustomOption mopt2 = 50060;
+};
+
+extend google.protobuf.ServiceOptions {
+  bool sopt1 = 50061;
+};
+
+service TestService {
+  option (sopt1) = true;
+
+	rpc Simple (TestRequest) returns (TestResponse){
+      option (mopt1) = true;
+      option (mopt2) = { name: "test123", value: 55 };
+    };
+}
