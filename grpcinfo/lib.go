@@ -13,6 +13,7 @@ import (
 
 type Registry interface {
 	Load(srv *grpc.Server) error
+	LoadFile(file string) error
 	GetMethodInfo(fqn string) MethodInfo
 }
 
@@ -43,29 +44,37 @@ func (r *registry) Load(svr *grpc.Server) error {
 		if !ok {
 			return fmt.Errorf("Service %q has unexpected metadata. Expecting a string, got %v", name, info.Metadata)
 		}
-		fd, err := loadFileDescriptorProto(file)
+		err := r.LoadFile(file)
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
 
-		pkg := fd.GetPackage()
+func (r *registry) LoadFile(file string) error {
+	fd, err := loadFileDescriptorProto(file)
+	if err != nil {
+		return err
+	}
 
-		merge := func(a, b string) string {
-			if a == "" {
-				return b
-			} else {
-				return a + "." + b
-			}
+	pkg := fd.GetPackage()
+
+	merge := func(a, b string) string {
+		if a == "" {
+			return b
+		} else {
+			return a + "." + b
 		}
+	}
 
-		for i := range fd.Service {
-			svc := fd.Service[i]
-			fqn := merge(pkg, svc.GetName())
-			for j := range svc.Method {
-				m := svc.Method[j]
-				fqnMethod := fmt.Sprintf("/%s/%s", fqn, m.GetName())
-				r.method[fqnMethod] = &methodInfo{service: &service{proto: svc}, method: &method{proto: m}}
-			}
+	for i := range fd.Service {
+		svc := fd.Service[i]
+		fqn := merge(pkg, svc.GetName())
+		for j := range svc.Method {
+			m := svc.Method[j]
+			fqnMethod := fmt.Sprintf("/%s/%s", fqn, m.GetName())
+			r.method[fqnMethod] = &methodInfo{service: &service{proto: svc}, method: &method{proto: m}}
 		}
 	}
 	return nil
