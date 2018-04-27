@@ -7,13 +7,13 @@ package test;
 import "google/protobuf/descriptor.proto";
 
 message TestRequest {
-	string foo = 1;
-	string bar = 2;
+  string foo = 1;
+  string bar = 2;
 }
 
 message TestResponse {
-	string foo = 1;
-	string bar = 2;
+  string foo = 1;
+  string bar = 2;
   bool sopt1 = 3;
   bool mopt1 = 4;
   CustomOption mopt2 = 5;
@@ -39,8 +39,8 @@ extend google.protobuf.ServiceOptions {
 service TestService {
   option (sopt1) = true;
 
-	rpc Simple (TestRequest) returns (TestResponse){
-      option (mopt1) = true;
-      option (mopt2) = { name: "test123", value: 55 };
-    };
+  rpc Simple (TestRequest) returns (TestResponse){
+    option (mopt1) = true;
+    option (mopt2) = { name: "test123", value: 55 };
+  };
 }
